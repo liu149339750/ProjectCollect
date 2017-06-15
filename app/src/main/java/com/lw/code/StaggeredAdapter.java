@@ -45,7 +45,7 @@ public class StaggeredAdapter extends BaseAdapter{
 	@Override
 	public int getCount() {
 		System.out.println("getCount>"+mEntries.size());
-		return mEntries.size();
+		return mEntries.size() * 4;
 	}
 
 	@Override
@@ -70,7 +70,7 @@ public class StaggeredAdapter extends BaseAdapter{
 			convertView.setTag(holder);
 		} else
 			holder = (ViewHolder) convertView.getTag();
-		DemoEntry entry = mEntries.get(position);
+		DemoEntry entry = mEntries.get(position/4);
 		holder.text.setText(entry.title);
 		Glide.with(mInflater.getContext()).load(Constant.FILE_BASE_URL + entry.icon).into(holder.image);
 		Log.v("dd","entry.icon = " + entry.icon);

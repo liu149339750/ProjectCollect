@@ -3,18 +3,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-
-    android:fitsSystemWindows="true"
+    android:fitsSystemWindows="false"
     android:clipToPadding="true"
-
     xmlns:app="http://schemas.android.com/apk/res-auto"
      >
 
-    <com.etsy.android.grid.StaggeredGridView
+    <android.support.v7.widget.RecyclerView
         android:id="@+id/staggeredGridView1"
-        app:column_count="3"
-        app:column_count_portrait="3"
-        app:item_margin="8dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 

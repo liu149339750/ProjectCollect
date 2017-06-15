@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -15,14 +16,14 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.Toast;
 
-import com.etsy.android.grid.StaggeredGridView;
 import com.lw.presenter.ProjectListPresenter;
 import com.lw.view.IProjectListView;
 
@@ -42,8 +43,8 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,IProjectListView {
 
     @BindView(R.id.staggeredGridView1)
-    StaggeredGridView mGridView;
-    StaggeredAdapter mAdapter;
+    RecyclerView mRecyclerView;
+    ProjectAdapater mAdapter;
 
     ProjectListPresenter mPresenter;
 
@@ -74,18 +75,21 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        mGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent intent = new Intent();
-                DemoEntry entry = (DemoEntry) parent.getItemAtPosition(position);
-                intent.putExtra("data", entry);
-                intent.setClass(MainActivity.this, DetailActivity.class);
-                startActivity(intent);
-            }
-        });
+//        mRecyclerView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//
+//            @Override
+//            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+//                Intent intent = new Intent();
+//                DemoEntry entry = (DemoEntry) parent.getItemAtPosition(position);
+//                intent.putExtra("data", entry);
+//                intent.setClass(MainActivity.this, DetailActivity.class);
+//                startActivity(intent);
+//            }
+//        });
 //        ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},0);
+        GridLayoutManager gl = new GridLayoutManager(this,2);
+        mRecyclerView.setLayoutManager(gl);
+        mRecyclerView.addItemDecoration(new GridDecoration());
         MainActivityPermissionsDispatcher.onPermissionGrantWithCheck(this);
         mPresenter.queryProjectDemoList();
     }
@@ -193,7 +197,19 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void showProjectList(List<DemoEntry> data) {
-        mAdapter = new StaggeredAdapter(this,data);
-        mGridView.setAdapter(mAdapter);
+        mAdapter = new ProjectAdapater(this,data);
+        mRecyclerView.setAdapter(mAdapter);
+    }
+
+    class GridDecoration extends RecyclerView.ItemDecoration {
+        int space = 20;
+        @Override
+        public void getItemOffsets(Rect outRect, View view,
+                                   RecyclerView parent, RecyclerView.State state) {
+            outRect.left = space;
+            outRect.right = space;
+            outRect.bottom = space;
+
+        }
     }
 }
