@@ -46,14 +46,14 @@ public class ProjectAdapater extends RecyclerView.Adapter<ProjectAdapater.ViewHo
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        DemoEntry entry = mDemoEntries.get(position);
+        DemoEntry entry = mDemoEntries.get(position/4);
         holder.title.setText(entry.title);
         Glide.with(mContext).load(Constant.FILE_BASE_URL + entry.icon).into(holder.image);
     }
 
     @Override
     public int getItemCount() {
-        return mDemoEntries.size();
+        return mDemoEntries.size() * 4;
     }
 
     public  class ViewHolder extends RecyclerView.ViewHolder{
