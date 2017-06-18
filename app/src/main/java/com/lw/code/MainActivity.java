@@ -4,7 +4,6 @@ import android.Manifest;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -12,22 +11,20 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
+import android.support.design.widget.TabLayout;
 import android.support.v4.view.GravityCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
-import com.lw.presenter.ProjectListPresenter;
-import com.lw.view.IProjectListView;
-
-import java.util.List;
+import com.lw.adapter.ViewPagerAdapter;
+import com.lw.ui.fragment.ProjectListFragment;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -40,23 +37,22 @@ import permissions.dispatcher.RuntimePermissions;
 
 @RuntimePermissions
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener,IProjectListView {
+        implements NavigationView.OnNavigationItemSelectedListener {
 
-    @BindView(R.id.staggeredGridView1)
-    RecyclerView mRecyclerView;
-    ProjectAdapater mAdapter;
+    @BindView(R.id.viewPager)
+    ViewPager mViewPager;
+    @BindView(R.id.tab)
+    TabLayout mTabLayout;
 
-    ProjectListPresenter mPresenter;
-
-
+    private ViewPagerAdapter mPagerAdapter;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.app_bar_main);
+        setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        mPresenter = new ProjectListPresenter(this);
+
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -66,49 +62,42 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-//        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-//        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-//                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-//        drawer.setDrawerListener(toggle);
-//        toggle.syncState();
-
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.setDrawerListener(toggle);
+        toggle.syncState();
+//
 //        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
 //        navigationView.setNavigationItemSelectedListener(this);
 
-//        mRecyclerView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//
-//            @Override
-//            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//                Intent intent = new Intent();
-//                DemoEntry entry = (DemoEntry) parent.getItemAtPosition(position);
-//                intent.putExtra("data", entry);
-//                intent.setClass(MainActivity.this, DetailActivity.class);
-//                startActivity(intent);
-//            }
-//        });
 //        ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},0);
-        GridLayoutManager gl = new GridLayoutManager(this,2);
-        mRecyclerView.setLayoutManager(gl);
-        mRecyclerView.addItemDecoration(new GridDecoration());
+
         MainActivityPermissionsDispatcher.onPermissionGrantWithCheck(this);
-        mPresenter.queryProjectDemoList();
+
+        mPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
+        mPagerAdapter.add(ProjectListFragment.newInstance("all"));
+        mPagerAdapter.add(ProjectListFragment.newInstance("favor"));
+        mViewPager.setAdapter(mPagerAdapter);
+
+        mTabLayout.setupWithViewPager(mViewPager);
+        mTabLayout.setTabsFromPagerAdapter(mPagerAdapter);
     }
 
     @NeedsPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
     void onPermissionGrant() {
-
-        Toast.makeText(this,"onPermissionGrant",Toast.LENGTH_LONG).show();
+        Toast.makeText(this, "onPermissionGrant", Toast.LENGTH_LONG).show();
     }
 
     @OnShowRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE)
     void showWriteEx(PermissionRequest request) {
-        Toast.makeText(this,"showWriteEx",Toast.LENGTH_LONG).show();
+        Toast.makeText(this, "showWriteEx", Toast.LENGTH_LONG).show();
         request.proceed();
     }
 
     @OnPermissionDenied(Manifest.permission.WRITE_EXTERNAL_STORAGE)
     void deny() {
-        Toast.makeText(this,"deny",Toast.LENGTH_LONG).show();
+        Toast.makeText(this, "deny", Toast.LENGTH_LONG).show();
         onNeverAskAgain();
     }
 
@@ -145,7 +134,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        MainActivityPermissionsDispatcher.onRequestPermissionsResult(this,requestCode,grantResults);
+        MainActivityPermissionsDispatcher.onRequestPermissionsResult(this, requestCode, grantResults);
     }
 
     @Override
@@ -195,21 +184,5 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    @Override
-    public void showProjectList(List<DemoEntry> data) {
-        mAdapter = new ProjectAdapater(this,data);
-        mRecyclerView.setAdapter(mAdapter);
-    }
 
-    class GridDecoration extends RecyclerView.ItemDecoration {
-        int space = 20;
-        @Override
-        public void getItemOffsets(Rect outRect, View view,
-                                   RecyclerView parent, RecyclerView.State state) {
-            outRect.left = space;
-            outRect.right = space;
-            outRect.bottom = space;
-
-        }
-    }
 }

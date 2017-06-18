@@ -1,8 +1,14 @@
 <resources>
-    <string name="app_name">MyCode</string>
+    <string name="app_name">开源集</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
     <string name="action_settings">Settings</string>
+
+    <string name="all">所有</string>
+    <string name="hot">推荐</string>
+    <string name="anim">动画</string>
+    <string name="widget">控件</string>
+    <string name="other">其他</string>
 </resources>

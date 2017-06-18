@@ -1,5 +1,7 @@
 package com.lw.presenter;
 
+import android.util.Log;
+
 import com.lw.api.ProjectApi;
 import com.lw.code.DemoEntry;
 import com.lw.view.IProjectListView;
@@ -16,6 +18,7 @@ import rx.schedulers.Schedulers;
 
 public class ProjectListPresenter {
 
+    private static final String TAG = "ProjectListPresenter";
     private IProjectListView mIView;
 
     public ProjectListPresenter(IProjectListView view) {
@@ -34,12 +37,13 @@ public class ProjectListPresenter {
 
                     @Override
                     public void onError(Throwable e) {
-
+                        e.printStackTrace();
                     }
 
                     @Override
                     public void onNext(List<DemoEntry> demoEntry) {
                         if(mIView != null) {
+                            Log.v(TAG,"onNext");
                             mIView.showProjectList(demoEntry);
                         }
                     }
